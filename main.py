@@ -6,58 +6,12 @@ import wikipedia
 import pyjokes
 import random
 import python_weather
+import phrases
 
 import asyncio
 import os
 
-opening_phrases = [
-    {
-        "name": "morning_phrases",
-        "phrases": [
-            "Good morning sir, what can I help you with?",
-            "How may I assist you?",
-            "Good day sir, how can I help you?"
-        ]
-    },
-    {
-        "name": "afternoon_phrases",
-        "phrases": [
-            "Good afternoon sir, what can I help you with?",
-            "How may I assist you?",
-            "Afternoon sir, how can I help you?"
-        ]
-    },
-    {
-        "name": "evening_phrases",
-        "phrases": [
-            "Good evening sir, what can I help you with?",
-            "How may I assist you?",
-            "Good evening sir, how can I help you?"
-        ]
-    },
-    {
-        "name": "night_phrases",
-        "phrases": [
-            "It's very late sir, what can I help you with?",
-            "How may I assist you?",
-            "You're up late sir, how can I help you?"
-        ]
-    },
-]
-repeat_phrases = [
-    "can you repeat please, i didn't understand.",
-    "i didn't hear you properly, can you repeat please?",
-    "can you say that again?"
-]
-various_repeat_phrases = [
-    "excuse me, but I still don't understand. May you please repeat?",
-    "I'm still not to sure what you mean, can you say that again?"
-]
-anything_else_phrases = [
-    "Can I help you with anything else sir?",
-    "Do you need anything else?",
-    "Anything else sir?"
-]
+
 repeat_question = False
 opening_phrase_used = False
 repeat_times = 0
@@ -75,17 +29,17 @@ def get_opening_phrase():
     time = datetime.datetime.now()
 
     if (time.hour >= 6 and time.minute >= 00) and (time.hour <= 11 and time.minute <= 59):
-        pos = random.randint(0, len(opening_phrases[0]["phrases"]))
-        talk(opening_phrases[0]["phrases"][pos])
+        pos = random.randint(0, len(phrases.opening_phrases[0]["phrases"]))
+        talk(phrases.opening_phrases[0]["phrases"][pos])
     elif (time.hour <= 19 and time.minute <= 59) and (time.hour >= 12 and time.minute >= 00):
-        pos = random.randint(0, len(opening_phrases[0]["phrases"]))
-        talk(opening_phrases[1]["phrases"][pos])
+        pos = random.randint(0, len(phrases.opening_phrases[0]["phrases"]))
+        talk(phrases.opening_phrases[1]["phrases"][pos])
     elif (time.hour <= 23 and time.minute <= 59) and (time.hour >= 20 and time.minute >= 00):
-        pos = random.randint(0, len(opening_phrases[0]["phrases"]))
-        talk(opening_phrases[2]["phrases"][pos])
+        pos = random.randint(0, len(phrases.opening_phrases[0]["phrases"]))
+        talk(phrases.opening_phrases[2]["phrases"][pos])
     elif (time.hour <= 5 and time.minute <= 59) and (time.hour >= 0 and time.minute >= 00):
-        pos = random.randint(0, len(opening_phrases[0]["phrases"]))
-        talk(opening_phrases[3]["phrases"][pos])
+        pos = random.randint(0, len(phrases.opening_phrases[0]["phrases"]))
+        talk(phrases.opening_phrases[3]["phrases"][pos])
 
     opening_phrase_used = True
 
@@ -94,22 +48,22 @@ def get_anything_else(repeat):
 
     if repeat == False:
         pos = random.randint(0, 2)
-        talk(anything_else_phrases[pos])
+        talk(phrases.anything_else_phrases[pos])
         repeat_times = 0
     elif repeat == True and repeat_times < 1:
         pos = random.randint(0, 2)
-        talk(repeat_phrases[pos])
+        talk(phrases.repeat_phrases[pos])
         repeat_times += 1
     elif repeat == True and repeat_times >= 1:
         pos = random.randint(0, 1)
-        talk(various_repeat_phrases[pos])
+        talk(phrases.various_repeat_phrases[pos])
         repeat_times += 1
 
 async def getweather():
     async with python_weather.Client(unit=python_weather.IMPERIAL) as client:
         # fetch a weather forecast from a city
         weather = await client.get('Villajoyosa')
-        engine.say("Today's forecast is " + weather.current.temperature)
+        engine.say("Today's forecast is " + str(weather.current.temperature))
 
         talk('Would you like to know the forecast for the next few days?')
         command = take_command()
@@ -167,8 +121,8 @@ def run_jarvis():
     elif 'joke' in command:
         talk(pyjokes.get_joke())
         repeat_question = False
-    elif 'weather' or 'forecast' in command:
-        asyncio.run(getweather())
+    elif 'weather' or 'forecast' in command:    #CHECK HOW TO GET THE ASYNC WORKING WITHOUT IT GOING INTO THIS CONDITION ON EVERY LOOP
+        getweather()
         repeat_question = False
     elif 'thank you' or 'no' in command:
         if 'thank you' in command:
@@ -177,7 +131,7 @@ def run_jarvis():
             talk('Okey, let me know if you need anything else.')
 
         return False
-    else:
+    else:   #FIX ELSE CONDITION, IT IS LOOPING THROUGH get_anything_else BUT DOESN'T SAY IT DIDN'T HEAR ANYTHING
         print('No command found')
         repeat_question = True
 
